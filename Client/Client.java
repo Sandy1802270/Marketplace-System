@@ -62,60 +62,7 @@ class Client {
 
     }
 
-//static String Add_Item(String itemID,String quantity,PrintWriter out, BufferedReader in) throws IOException
-//{
-//    
-//    
-//            
-//  // sending the FUNCTION ID to server
-//    out.println(String.valueOf(2));
-//    out.flush();
-//    
-//    // sending the itemID to server
-//    out.println(itemID);
-//    out.flush();
-//    // sending the quantity required to the server
-//    out.println(quantity);
-//    out.flush();
-//   // displaying server reply to check whether data sent are valid or not
-//    return in.readLine();
-//
-//
-//}
-//
-//static String Edit_Item(String itemID,String quantity,PrintWriter out, BufferedReader in) throws IOException
-//{        
-//  // sending the FUNCTION ID to server
-//    out.println(String.valueOf(3));
-//    out.flush();
-//    
-//    // sending the itemID to server
-//    out.println(itemID);
-//    out.flush();
-//    // sending the quantity required to the server
-//    out.println(quantity);
-//    out.flush();
-//   // displaying server reply to check whether data sent are valid or not
-//    return in.readLine();
-//
-//
-//}
-//
-//static String Remove_Item(String itemID,String quantity,PrintWriter out, BufferedReader in) throws IOException
-//{  
-//    // sending the FUNCTION ID to server
-//    out.println(String.valueOf(4));
-//    out.flush();
-//    
-//    // sending the itemID to server
-//    out.println(itemID);
-//    out.flush();
-//    // sending the quantity required to the server
-//    out.println(quantity);
-//    out.flush();
-//   // displaying server reply to check whether data sent are valid or not
-//    return in.readLine();
-//}
+
     static String View_Acc_Info(String User_ID, PrintWriter out, BufferedReader in) throws IOException {
         // sending the FUNCTION ID to server
         out.println(String.valueOf(5));
@@ -215,13 +162,7 @@ class Client {
             quantity.add("3");
 
             System.out.println(purchase("123", items_ID, quantity, out, in));
-//            //added
-//
-//            for (int i = 0; i < 4; i++) {
-//               // System.out.println(send_ID_Password_Login("youssifkhaled95@gmail.com", "1234", out, in));
-//                System.out.println(Edit_Item("123", "4", out, in));
-//
-//            }
+
 
             close_program(out);
 
