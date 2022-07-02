@@ -4,19 +4,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
-*/
-
+ */
+/**
+ *
+ * @author Salma
+ */
 public class Functions {
 
     Connection connect;
     PreparedStatement statement;
     ResultSet result;
-    static int d = 0;
+    static int d = 9;
+
 
     public String case0(String username, String pass) {
         ConnectDB db = new ConnectDB();
@@ -97,8 +102,8 @@ public class Functions {
         ConnectDB db = new ConnectDB();
         connect = db.connectDB();
         try {
-            String sql5 = " update client set balance=balance+? where cid=?";
-            statement = connect.prepareStatement(sql5);
+            String sql8 = " update client set balance=balance+? where cid=?";
+            statement = connect.prepareStatement(sql8);
             statement.setInt(1, Integer.parseInt(amount));
             statement.setString(2, id);
             statement.executeUpdate();
@@ -152,6 +157,8 @@ public class Functions {
     }
 
     public String case61(String user) {//balance check
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
         String balance;
         try {
             String sql61 = "select balance from client where cid=?";
@@ -169,14 +176,13 @@ public class Functions {
         return "not okay";
     }
 
-    public String case62(ArrayList<String> itemid) { //check qty
+    public void case62(String un, ArrayList<String> itemid, ArrayList<String> cartqty, int tot, String user) { //check qty
         ConnectDB db = new ConnectDB();
         connect = db.connectDB();
         ArrayList<String> qty = new ArrayList<>();
         try {
             for (int i = 0; i < itemid.size(); i++) {
                 String sql62 = "select qty from item where itemid=?";
-                //String sql62="update qty set qty=qty-? where itemid=?";
                 statement = connect.prepareStatement(sql62);
                 statement.setString(1, itemid.get(i));
                 result = statement.executeQuery();
@@ -184,9 +190,201 @@ public class Functions {
                     qty.add(result.getString("qty"));
                 }
             }
+            for (int i = 0; i < qty.size(); i++) {
+                qty.set(i, String.valueOf(Integer.parseInt(qty.get(i)) - Integer.parseInt(cartqty.get(i))));
+            }
+            for (int i = 0; i < qty.size(); i++) {
+                String sql63 = "update item set qty=?  where itemid=?";
+                statement = connect.prepareStatement(sql63);
+                statement.setString(1, qty.get(i));
+                statement.setString(2, itemid.get(i));
+                statement.executeUpdate();
+
+            }
+            String sql64 = "update client set balance=balance-?  where cid=?";
+            statement = connect.prepareStatement(sql64);
+            statement.setInt(1, tot);
+            statement.setString(2, user);
+            statement.executeUpdate();
+
+            Random rand = new Random();
+            int z=rand.nextInt(1000);
+            //d=d+1;
+            String sql66 = "insert into orders (cid,oid,total_price) values(?,?,?)";
+            statement = connect.prepareStatement(sql66);
+            statement.setString(1, un);
+            statement.setString(2, String.valueOf(z));
+            statement.setString(3, String.valueOf(tot));
+            statement.execute();
+
+            for (int i = 0; i < itemid.size(); i++) {
+                String sql65 = "insert into purchased_items (cid,oid,itemid) values(?,?,?)";
+                statement = connect.prepareStatement(sql65);
+                statement.setString(1, un);
+                statement.setString(2, String.valueOf(z));
+                statement.setString(3, itemid.get(i));
+                statement.execute();
+            }
+            d++;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "fail";
     }
+
+    public void case52(String id, ArrayList<String> oid, ArrayList<String> price) {//view balance
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        try {
+
+            String sql52 = " SELECT oid,total_price FROM orders WHERE cid=?";
+            statement = connect.prepareStatement(sql52);
+            statement.setString(1, id);
+            result = statement.executeQuery();
+            while (result.next()) {
+                oid.add(result.getString("oid"));
+                price.add(result.getString("total_price"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void caseFood(ArrayList<String> a) {
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        String pic, iname, qty, price;
+        try {
+            String sql = "select iname,price,qty,pic from item where category=\"Food\"";
+            ResultSet rs = connect.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                pic = rs.getString("pic");
+                iname = rs.getString("iname");
+                qty = rs.getString("qty");
+                price = rs.getString("price");
+                a.add(pic);
+                a.add(iname);
+                a.add(qty);
+                a.add(price);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void caseCloth(ArrayList<String> a) {
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        String pic, iname, qty, price;
+        try {
+            String sql = "select iname,price,qty,pic from item where category=\"Clothing\"";
+            ResultSet rs = connect.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                pic = rs.getString("pic");
+                iname = rs.getString("iname");
+                qty = rs.getString("qty");
+                price = rs.getString("price");
+                a.add(pic);
+                a.add(iname);
+                a.add(qty);
+                a.add(price);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void caseHA(ArrayList<String> a) {
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        String pic, iname, qty, price;
+        try {
+            String sql = "select iname,price,qty,pic from item where category=\"Home Appliances\"";
+            ResultSet rs = connect.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                pic = rs.getString("pic");
+                iname = rs.getString("iname");
+                qty = rs.getString("qty");
+                price = rs.getString("price");
+                a.add(pic);
+                a.add(iname);
+                a.add(qty);
+                a.add(price);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void caseElec(ArrayList<String> a) {
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        String pic, iname, qty, price;
+        try {
+            String sql = "select iname,price,qty,pic from item where category=\"Electronics\"";
+            ResultSet rs = connect.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                pic = rs.getString("pic");
+                iname = rs.getString("iname");
+                qty = rs.getString("qty");
+                price = rs.getString("price");
+                a.add(pic);
+                a.add(iname);
+                a.add(qty);
+                a.add(price);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public String case20(int sum){
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        try {
+
+            ArrayList<String> price = new ArrayList<>();
+
+
+            String sql20 = " SELECT total_price FROM orders";
+            statement = connect.prepareStatement(sql20);
+            result = statement.executeQuery();
+            while (result.next()) {
+                price.add(result.getString("total_price"));
+            }
+            for(int i=0;i< price.size();i++)
+            {
+                sum+=Integer.parseInt(price.get(i));
+
+            }
+            return String.valueOf(sum);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return "null";
+
+    }
+    public String case21(int sum){
+        ConnectDB db = new ConnectDB();
+        connect = db.connectDB();
+        int i=0;
+        try {
+
+            ArrayList<String> price = new ArrayList<>();
+            String sql21 = " SELECT cid FROM client";
+            statement = connect.prepareStatement(sql21);
+            result = statement.executeQuery();
+            while (result.next()) {
+                price.add(result.getString("cid"));
+                i++;
+            }
+            return String.valueOf(i);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "No Clients.";
+    }
+
+
 }
