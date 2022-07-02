@@ -10,6 +10,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,30 +54,47 @@ public class NewHomeAppController implements Initializable{
     private Connection connect;
     private PreparedStatement statement;
     ObservableList<ModelTable> ob = FXCollections.observableArrayList();
+    static void caseElec(ArrayList<String> a, PrintWriter out, BufferedReader in) throws IOException {
+        out.println(String.valueOf(13));
+        out.flush();
+        int size= Integer.parseInt(in.readLine());
+
+        for (int i = 0; i < size; i++) {
+            a.add(in.readLine());
+        }    }
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        String sql = "select iname,price,qty,pic from item where category=\"Home Appliances\"";
-        try {
-            ConnectDB db = new ConnectDB();
-            connect = db.connectDB();
-            ResultSet rs = connect.createStatement().executeQuery(sql);
+        try (Socket socket = new Socket("localhost", 1234)) {
+            // writing to server
+            PrintWriter out = new PrintWriter(
+                    socket.getOutputStream(), true);
+            // reading from server
+            BufferedReader in
+                    = new BufferedReader(new InputStreamReader(
+                    socket.getInputStream()));
+            ArrayList<String> a=new ArrayList<>();
+            caseElec(a,out,in);
             int i = 0;
             int j = 0;
-            while (rs.next()) {
-                if(j==2){j=0;}
+            int n=0;
+            while(n<a.size()-3) {
+                if (j == 2) {
+                    j = 0;
+                }
                 VBox layout = new VBox();
-                File imageFile = new File(rs.getString("pic"));
+                File imageFile = new File(a.get(n));
                 ImageView imgv = new ImageView();
                 imgv.setImage(new Image(imageFile.toURI().toString()));
                 imgv.setFitWidth(210);
                 imgv.setFitHeight(210);
-                Label productName = new Label(rs.getString("iname"));
-                Label price = new Label(rs.getString("price") + "  Quantity: "+rs.getString("qty"));
+                Label productName = new Label(a.get(n + 1));
+                Label price = new Label(a.get(n + 3) + "  Quantity: " + a.get(n + 2));
                 layout.getChildren().addAll(imgv, productName, price);
                 productGridPane.add(layout, i++, 0);
                 productGridPane.setHgap(25); //horizontal gap in pixels => that's what you are asking for
                 productGridPane.setVgap(25); //vertical gap in pixels
                 productGridPane.setPadding(new Insets(10, 10, 10, 10));
+                n += 4;
             }
         } catch (Exception e) {
             e.printStackTrace();
