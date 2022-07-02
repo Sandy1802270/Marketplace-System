@@ -5,15 +5,14 @@
  */
 package sample.market;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,50 +51,68 @@ public class HomeController implements Initializable {
     private PreparedStatement statement;
     ObservableList<ModelTable> ob = FXCollections.observableArrayList();
 
+
+    static void caseFood(ArrayList<String> a, PrintWriter out, BufferedReader in) throws IOException {
+        out.println(String.valueOf(11));
+        out.flush();
+        int size= Integer.parseInt(in.readLine());
+
+        for (int i = 0; i < size; i++) {
+            a.add(in.readLine());
+        }    }
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        String sql = "select iname,price,qty,pic from item where category=\"Food\"";
-        try {
-            ConnectDB db = new ConnectDB();
-            connect = db.connectDB();
-            ResultSet rs = connect.createStatement().executeQuery(sql);
+        try (Socket socket = new Socket("localhost", 1234)) {
+            // writing to server
+            PrintWriter out = new PrintWriter(
+                    socket.getOutputStream(), true);
+            // reading from server
+            BufferedReader in
+                    = new BufferedReader(new InputStreamReader(
+                    socket.getInputStream()));
+            ArrayList<String> a=new ArrayList<>();
+            caseFood(a,out,in);
             int i = 0;
             int j = 0;
-            while (rs.next()) {
-                if(j==2){j=0; i++;}
-                if(i==3){i=0;}
+            int n=0;
+            while(n<a.size()-3){
+                if (j == 2) {
+                    j = 0;
+                    i++;
+                }
+                if (i == 3) {
+                    i = 0;
+                }
                 VBox layout = new VBox();
-                File imageFile = new File(rs.getString("pic"));
+                File imageFile = new File(a.get(n));
                 ImageView imgv = new ImageView();
                 imgv.setImage(new Image(imageFile.toURI().toString()));
                 imgv.setFitWidth(150);
                 imgv.setFitHeight(150);
-                Label productName = new Label(rs.getString("iname"));
-                Label price = new Label(rs.getString("price") + "  Quantity: "+rs.getString("qty"));
-                //Label qty = new Label("Quantity: "+rs.getString("qty"));
-                //Button addButton = new Button("Add to Cart");
-                //addButton.setMaxWidth(150);
-//                TextField tf = new TextField();
-//                tf.setMaxWidth(150);
-//                tf.setPromptText("Quantity");
-                //tf.setFocusTraversable(false);
+//                            a.add(pic);
+//                            a.add(iname);
+//                            a.add(qty);
+//                            a.add(price);
+                Label productName = new Label(a.get(n+1));
+                Label price = new Label(a.get(n+3) + "  Quantity: " + a.get(n+2));
                 layout.getChildren().addAll(imgv, productName, price);
                 productGridPane.add(layout, i, j++);
-//                productGridPane.setAlignment(Pos.CENTER_RIGHT);
-                productGridPane.setHgap(25); //horizontal gap in pixels => that's what you are asking for
-                productGridPane.setVgap(25); //vertical gap in pixels
+                productGridPane.setHgap(25);
+                productGridPane.setVgap(25);
                 productGridPane.setPadding(new Insets(10, 10, 10, 10));
+                n+=4;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (IOException ex) {
+            ex.printStackTrace();
         }
+
     }
         
             @FXML
     void onAddTomClick(ActionEvent event) throws IOException {
         ItemsArrayList.i.add("1");
         ItemsArrayList.q.add(q1.getText());
-        ItemsArrayList.p.add("$2.99");
+        ItemsArrayList.p.add("$3");
         ItemsArrayList.n.add("Tomato");
 
     }
@@ -104,7 +121,7 @@ public class HomeController implements Initializable {
     void onAddBanClick(ActionEvent event) throws IOException {
         ItemsArrayList.i.add("2");
         ItemsArrayList.q.add(q2.getText());
-        ItemsArrayList.p.add("$4.99");
+        ItemsArrayList.p.add("$4");
         ItemsArrayList.n.add("Banana");
 
     }
@@ -113,7 +130,7 @@ public class HomeController implements Initializable {
     void onAddCheeseClick(ActionEvent event) throws IOException {
         ItemsArrayList.i.add("3");
         ItemsArrayList.q.add(q3.getText());
-        ItemsArrayList.p.add("$6.99");
+        ItemsArrayList.p.add("$6");
         ItemsArrayList.n.add("Cheese");
 
     }
@@ -122,7 +139,7 @@ public class HomeController implements Initializable {
     void onAddPizzaClick(ActionEvent event) throws IOException {
         ItemsArrayList.i.add("4");
         ItemsArrayList.q.add(q4.getText());
-        ItemsArrayList.p.add("$15.99");
+        ItemsArrayList.p.add("$15");
         ItemsArrayList.n.add("Pizza");
     }
     @FXML
